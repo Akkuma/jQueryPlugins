@@ -44,15 +44,9 @@
 	
     $.fn.printElement = function (options) {
         var mainOptions = $.extend({}, defaults, options);
-		/*
-        //iframe mode is not supported for opera and chrome 3.0 (it prints the entire page).
-        //http://www.google.com/support/forum/p/Webmasters/thread?tid=2cb0f08dce8821c3&hl=en
-        if (mainOptions.printMode === 'iframe') {
-            if ($.browser.opera || (/chrome/.test(navigator.userAgent.toLowerCase())))
-                mainOptions["printMode"] = 'popup';
-        }*/
+
         //Remove previously printed iframe if exists
-        $("[id^='printElement_']").remove();
+        $("iframe[id^='printElement_']").remove();
 
         return this.each(function () {
             //Support Metadata Plug-in if available
@@ -84,7 +78,6 @@
 			
             documentToWriteTo = iframe.contentWindow || iframe.contentDocument;
             documentToWriteTo.document && (documentToWriteTo = documentToWriteTo.document);
-            //iframe = document.frames ? document.frames[printElementID] : document.getElementById(printElementID);
             popupOrIframe = iframe.contentWindow || iframe;
 			iframe.focus();
         }
@@ -94,46 +87,6 @@
         documentToWriteTo.close();
         popupOrIframe.printPage();
     };
-/*
-    function _callPrint(element) {
-        if (element && element["printPage"])
-            element["printPage"]();
-        else
-            setTimeout(function () {
-                _callPrint(element);
-            }, 50);
-    }
-*/
-    function _getElementHTMLIncludingFormElements($element) {
-		var $inputs = $element.find('input');
-        //Radiobuttons and checkboxes
-        $inputs.filter(":checked").each(function () {
-            this.setAttribute('checked', 'checked');
-        });
-        //simple text inputs
-        $inputs.filter(":text").each(function () {
-            this.setAttribute('value', $(this).val());
-        });
-        $("select", $element).each(function () {
-            var $select = $(this);
-            $("option", $select).each(function () {
-                if ($select.val() == $(this).val())
-                    this.setAttribute('selected', 'selected');
-            });
-        });
-        $("textarea", $element).each(function () {
-            //Thanks http://blog.ekini.net/2009/02/24/jquery-getting-the-latest-textvalue-inside-a-textarea/
-            var value = $(this).attr('value');
-            //fix for issue 7 (http://plugins.jquery.com/node/13503 and http://github.com/erikzaadi/jQueryPlugins/issues#issue/7)
-            if ($.browser.mozilla && this.firstChild)
-                this.firstChild.textContent = value;
-            else
-                this.innerHTML = value;
-        });
-        //http://dbj.org/dbj/?p=91
-        var elementHtml = $('<div></div>').append($element.clone()).html();
-        return elementHtml;
-    }
 
     function _getBaseHref() {
         var port = (window.location.port) ? ':' + window.location.port : '';
@@ -141,9 +94,9 @@
     }
 
     function _getMarkup($element, opts) {
-        var elementHtml = $element.html();//_getElementHTMLIncludingFormElements($element);
-
-        var html = [];
+        var elementHtml = $element.html(),
+			html = [];
+			
         html.push('<html><head><title>' + opts.pageTitle + '</title>');
         if (opts.overrideElementCSS) {
             if (opts.overrideElementCSS.length > 0) {
