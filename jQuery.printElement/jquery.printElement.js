@@ -85,9 +85,20 @@
         documentToWriteTo.open();
         documentToWriteTo.write(html);
         documentToWriteTo.close();
-        popupOrIframe.printPage();
-    };
-
+        _callPrint(popupOrIframe);
+    }
+    
+	function _callPrint(element) {
+        if (element && element.printPage) {
+            element.printPage();
+		}
+        else {
+            setTimeout(function () {
+                _callPrint(element);
+            }, 50);
+		}
+    }
+	
     function _getBaseHref() {
         var port = (window.location.port) ? ':' + window.location.port : '';
         return window.location.protocol + '//' + window.location.hostname + port + window.location.pathname;
